@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function connect(event) {
         username = document.querySelector('#name').value.trim();
 
-        if(username) {
+        if (username) {
             usernamePage.classList.add('hidden');
             chatPage.classList.remove('hidden');
 
@@ -25,28 +25,34 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function sendMessage(event) {
         var messageContent = messageInput.value.trim();
 
-        if(messageContent && username) {
+        if (messageContent && username) {
             socket.emit('message', username + ': ' + messageContent);
             messageInput.value = '';
         }
         event.preventDefault();
     }
 
-    socket.on('message', function(msg) {
+    socket.on('message', function (msg) {
         var messageElement = document.createElement('li');
         messageElement.textContent = msg;
         messageArea.appendChild(messageElement);
         messageArea.scrollTop = messageArea.scrollHeight;
     });
 
-    usernameForm.addEventListener('submit', connect, true);
-    messageForm.addEventListener('submit', sendMessage, true);
-
     socket.on('connect', () => {
+        console.log('Connected to WebSocket');
         connectingElement.classList.add('hidden');
     });
 
     socket.on('disconnect', () => {
+        console.log('Disconnected from WebSocket');
         connectingElement.classList.remove('hidden');
     });
+
+    socket.on('connect_error', (error) => {
+        console.error('WebSocket connection error:', error);
+    });
+
+    usernameForm.addEventListener('submit', connect, true);
+    messageForm.addEventListener('submit', sendMessage, true);
 });
